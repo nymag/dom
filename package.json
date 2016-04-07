@@ -1,0 +1,34 @@
+{
+  "name": "@nymag/dom",
+  "version": "0.0.1",
+  "description": "Tiny DOM manipulation library, good for minification!",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nymag/dom.git"
+  },
+  "keywords": [
+    "clay",
+    "dom"
+  ],
+  "author": "New York Media",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nymag/dom/issues"
+  },
+  "homepage": "https://github.com/nymag/dom#readme",
+  "dependencies": {
+    "domify": "^1.4.0",
+    "lodash": "^4.8.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "jsdom": "^8.3.0",
+    "mocha": "^2.4.5",
+    "mocha-jsdom": "^1.1.0",
+    "sinon": "^1.17.3"
+  }
+}
