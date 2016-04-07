@@ -243,6 +243,22 @@ function onRemove(el, fn) {
   observer.observe(el.parentNode, {childList: true});
 }
 
+/**
+ * Get the position of a DOM element
+ * @param  {Element} el
+ * @return {object}
+ */
+function getPos(el) {
+  var rect = el.getBoundingClientRect(),
+    scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+
+  return {
+    top: rect.top + scrollY,
+    bottom: rect.top + rect.height + scrollY,
+    height: rect.height
+  };
+}
+
 // creating elements
 module.exports.create = domify;
 
@@ -255,9 +271,10 @@ module.exports.find = find;
 module.exports.findAll = findAll;
 module.exports.matches = matches;
 module.exports.closest = closest;
+module.exports.getFirstChildElement = getFirstChildElement;
+module.exports.getPos = getPos;
 
 // manipulating elements
-module.exports.getFirstChildElement = getFirstChildElement;
 module.exports.prependChild = prependChild;
 module.exports.insertBefore = insertBefore;
 module.exports.insertAfter = insertAfter;
