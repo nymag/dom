@@ -71,6 +71,29 @@ function getFirstChildElement(parent) {
 }
 
 /**
+ * Returns true if the element would be selected by the specified selector.
+ * Essentially a polyfill, but necessary for `closest`.
+ * @param {Node} node   preferably an Element for better performance, but it will accept any Node.
+ * @param {string} selector
+ * @returns {boolean}
+ */
+function matches(node, selector) {
+  var parent, matches, i;
+
+  if (node.matches) {
+    return node.matches(selector);
+  } else {
+    parent = node.parentElement || $document;
+    matches = parent.querySelectorAll(selector);
+    i = 0;
+    while (matches[i] && matches[i] !== node) {
+      i++;
+    }
+    return !!matches[i];
+  }
+}
+
+/**
  * get closest element that matches selector starting with the element itself and traversing up through parents.
  * @param  {Element} node
  * @param  {string} parentSelector
@@ -83,11 +106,11 @@ function closest(node, parentSelector) {
     throw new Error('Please specify a selector to match against!');
   }
 
-  while (cursor && !cursor.matches('html') && !cursor.matches(parentSelector)) {
+  while (cursor && !matches(cursor, 'html') && !matches(cursor, parentSelector)) {
     cursor = cursor.parentNode;
   }
 
-  if (!cursor || cursor.matches('html')) {
+  if (!cursor || matches(cursor, 'html')) {
     return null;
   } else {
     return cursor;
@@ -230,6 +253,7 @@ module.exports.pageUri = pageUri;
 // finding elements (these minify nicely)
 module.exports.find = find;
 module.exports.findAll = findAll;
+module.exports.matches = matches;
 module.exports.closest = closest;
 
 // manipulating elements
