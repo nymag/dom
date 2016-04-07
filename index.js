@@ -2,224 +2,250 @@
 var domify = require('domify'),
   _ = require('lodash');
 
-module.exports = {
-  /**
-   * Get url without _how_ to access it, creating a uri.
-   *
-   * Removes port and protocol.
-   *
-   * @returns {string}
-   */
-  uri: function () {
-    var location = document.location;
+/**
+ * Get url without _how_ to access it, creating a uri.
+ *
+ * Removes port and protocol.
+ *
+ * @returns {string}
+ */
+function uri() {
+  var location = document.location;
 
-    return location.hostname + location.pathname;
-  },
+  return location.hostname + location.pathname;
+}
 
-  /**
-   * get page uri
-   * note: page uri should be in the data-uri attribute of the <html> element
-   * @returns {string}
-   */
-  pageUri: function () {
-    return document.firstElementChild.getAttribute('data-uri');
-  },
+/**
+ * get page uri
+ * note: page uri should be in the data-uri attribute of the <html> element
+ * @returns {string}
+ */
+function pageUri() {
+  return document.firstElementChild.getAttribute('data-uri');
+}
 
-  /**
-   * This function can be minimized smaller than document.querySelector
-   * @param {Element} [el]
-   * @param {string} selector
-   * @returns {Element}
-   * @example find('ul') //finds globally
-   * @example find(el, '.list') //finds within
-   */
-  find: function (el, selector) {
-    if (!selector) {
-      selector = el;
-      el = document;
-    }
-    return el.querySelector(selector);
-  },
+/**
+ * This function can be minimized smaller than document.querySelector
+ * @param {Element} [el]
+ * @param {string} selector
+ * @returns {Element}
+ * @example find('ul') //finds globally
+ * @example find(el, '.list') //finds within
+ */
+function find(el, selector) {
+  if (!selector) {
+    selector = el;
+    el = document;
+  }
+  return el.querySelector(selector);
+}
 
-  /**
-   * This function can be minimized smaller than document.querySelector
-   * @param {Element} [el]
-   * @param {string} selector
-   * @returns {NodeList}
-   * @example findAll('ul') //finds globally
-   * @example findAll(el, '.list') //finds within
-   */
-  findAll: function (el, selector) {
-    if (!selector) {
-      selector = el;
-      el = document;
-    }
-    return el.querySelectorAll(selector);
-  },
+/**
+ * This function can be minimized smaller than document.querySelector
+ * @param {Element} [el]
+ * @param {string} selector
+ * @returns {NodeList}
+ * @example findAll('ul') //finds globally
+ * @example findAll(el, '.list') //finds within
+ */
+function findAll(el, selector) {
+  if (!selector) {
+    selector = el;
+    el = document;
+  }
+  return el.querySelectorAll(selector);
+}
 
-  /**
-   * NOTE: nodeType of 1 means Element
-   * @param {Element} parent
-   * @returns {Element} cursor
-   */
-  getFirstChildElement: function (parent) {
-    var cursor = parent.firstChild;
+/**
+ * NOTE: nodeType of 1 means Element
+ * @param {Element} parent
+ * @returns {Element} cursor
+ */
+function getFirstChildElement(parent) {
+  var cursor = parent.firstChild;
 
-    while (cursor && cursor.nodeType !== 1) {
-      cursor = cursor.nextSibling;
-    }
+  while (cursor && cursor.nodeType !== 1) {
+    cursor = cursor.nextSibling;
+  }
+  return cursor;
+}
+
+/**
+ * get closest element that matches selector starting with the element itself and traversing up through parents.
+ * @param  {Element} node
+ * @param  {string} parentSelector
+ * @return {Element|null}
+ */
+function closest(node, parentSelector) {
+  var cursor = node;
+
+  if (!parentSelector || typeof parentSelector !== 'string') {
+    throw new Error('Please specify a selector to match against!');
+  }
+
+  while (cursor && !cursor.matches('html') && !cursor.matches(parentSelector)) {
+    cursor = cursor.parentNode;
+  }
+
+  if (!cursor || cursor.matches('html')) {
+    return null;
+  } else {
     return cursor;
-  },
+  }
+}
 
-  /**
-   * get closest element that matches selector starting with the element itself and traversing up through parents.
-   * @param  {Element} node
-   * @param  {string} parentSelector
-   * @return {Element|null}
-   */
-  closest: function (node, parentSelector) {
-    var cursor = node;
+function prependChild(parent, child) {
+  if (parent.firstChild) {
+    parent.insertBefore(child, parent.firstChild);
+  } else {
+    parent.appendChild(child);
+  }
+}
 
-    if (!parentSelector || typeof parentSelector !== 'string') {
-      throw new Error('Please specify a selector to match against!');
-    }
+function insertBefore(node, newNode) {
+  if (node.parentNode) {
+    node.parentNode.insertBefore(newNode, node);
+  }
+}
 
-    while (cursor && !cursor.matches('html') && !cursor.matches(parentSelector)) {
-      cursor = cursor.parentNode;
-    }
+function insertAfter(node, newNode) {
+  if (node.parentNode) {
+    node.parentNode.insertBefore(newNode, node.nextSibling);
+  }
+}
 
-    if (!cursor || cursor.matches('html')) {
-      return null;
-    } else {
-      return cursor;
-    }
-  },
+/**
+ * Fast way to clear all children
+ * @see http://jsperf.com/innerhtml-vs-removechild/294
+ * @param {Element} el
+ */
+function clearChildren(el) {
+  while (el.firstChild) {
+    el.removeChild(el.firstChild);
+  }
+}
 
-  prependChild: function (parent, child) {
-    if (parent.firstChild) {
-      parent.insertBefore(child, parent.firstChild);
-    } else {
-      parent.appendChild(child);
-    }
-  },
+/**
+ * Remove a single element from its parent
+ * @param {Element} el
+ */
+function removeElement(el) {
+  el.parentNode.removeChild(el);
+}
 
-  insertBefore: function (node, newNode) {
-    if (node.parentNode) {
-      node.parentNode.insertBefore(newNode, node);
-    }
-  },
+function preventDefault(e) {
+  e.preventDefault ? e.preventDefault() : e.returnValue = false; // eslint-disable-line
+}
 
-  insertAfter: function (node, newNode) {
-    if (node.parentNode) {
-      node.parentNode.insertBefore(newNode, node.nextSibling);
-    }
-  },
+function replaceElement(el, replacementEl) {
+  var parent = el.parentNode;
 
-  /**
-   * Fast way to clear all children
-   * @see http://jsperf.com/innerhtml-vs-removechild/294
-   * @param {Element} el
-   */
-  clearChildren: function (el) {
-    while (el.firstChild) {
-      el.removeChild(el.firstChild);
-    }
-  },
+  if (parent) {
+    parent.replaceChild(replacementEl, el);
+  }
+}
 
-  /**
-   * Remove a single element from its parent
-   * @param {Element} el
-   */
-  removeElement: function (el) {
+/**
+ * wrap elements in another element
+ * @param {NodeList|Element} els
+ * @param {string} wrapper
+ * @returns {Element} wrapperEl
+ */
+function wrapElements(els, wrapper) {
+  var wrapperEl = document.createElement(wrapper);
+
+  // make sure elements are in an array
+  if (els instanceof HTMLElement) {
+    els = [els];
+  } else {
+    els = Array.prototype.slice.call(els);
+  }
+
+  _.each(els, function (el) {
+    // put it into the wrapper, remove it from its parent
     el.parentNode.removeChild(el);
-  },
+    wrapperEl.appendChild(el);
+  });
 
-  preventDefault: function (e) {
-    e.preventDefault ? e.preventDefault() : e.returnValue = false; // eslint-disable-line
-  },
+  // return the wrapped elements
+  return wrapperEl;
+}
 
-  replaceElement: function (el, replacementEl) {
-    var parent = el.parentNode;
+/**
+ * unwrap elements from another element
+ * @param {Element} parent
+ * @param {Element} wrapper
+ */
+function unwrapElements(parent, wrapper) {
+  var el = wrapper.childNodes[0];
 
-    if (parent) {
-      parent.replaceChild(replacementEl, el);
-    }
-  },
+  // ok, so this looks weird, right?
+  // turns out, appending nodes to another node will remove them
+  // from the live NodeList, so we can keep iterating over the
+  // first item in that list and grab all of them. Nice!
+  while (el) {
+    parent.appendChild(el);
+    el = wrapper.childNodes[0];
+  }
 
-  /**
-   * wrap elements in another element
-   * @param {NodeList|Element} els
-   * @param {string} wrapper
-   * @returns {Element} wrapperEl
-   */
-  wrapElements: function (els, wrapper) {
-    var wrapperEl = document.createElement(wrapper);
+  parent.removeChild(wrapper);
+}
 
-    // make sure elements are in an array
-    if (els instanceof HTMLElement) {
-      els = [els];
-    } else {
-      els = Array.prototype.slice.call(els);
-    }
-
-    _.each(els, function (el) {
-      // put it into the wrapper, remove it from its parent
-      el.parentNode.removeChild(el);
-      wrapperEl.appendChild(el);
+/**
+ * Create a remove node handler that runs fn and removes the observer.
+ * @param {Element} el
+ * @param {Function} fn
+ * @returns {Function}
+ */
+function createRemoveNodeHandler(el, fn) {
+  return function (mutations, observer) {
+    mutations.forEach(function (mutation) {
+      if (_.includes(mutation.removedNodes, el)) {
+        fn();
+        observer.disconnect();
+      }
     });
+  };
+}
 
-    // return the wrapped elements
-    return wrapperEl;
-  },
+/**
+ * Run a function when an element is removed from the DOM.
+ * Note: Observer is removed after the function is run once.
+ * @param {Element} el    Element to observe.
+ * @param {Function} fn   Function to execute when element is removed.
+ */
+function onRemove(el, fn) {
+  var observer = new MutationObserver(this.createRemoveNodeHandler(el, fn));
 
-  /**
-   * unwrap elements from another element
-   * @param {Element} parent
-   * @param {Element} wrapper
-   */
-  unwrapElements: function (parent, wrapper) {
-    var el = wrapper.childNodes[0];
+  observer.observe(el.parentNode, {childList: true});
+}
 
-    // ok, so this looks weird, right?
-    // turns out, appending nodes to another node will remove them
-    // from the live NodeList, so we can keep iterating over the
-    // first item in that list and grab all of them. Nice!
-    while (el) {
-      parent.appendChild(el);
-      el = wrapper.childNodes[0];
-    }
+// creating elements
+module.exports.create = domify;
 
-    parent.removeChild(wrapper);
-  },
+// getting uri stuff
+module.exports.uri = uri;
+module.exports.pageUri = pageUri;
 
-  /**
-   * Create a remove node handler that runs fn and removes the observer.
-   * @param {Element} el
-   * @param {Function} fn
-   * @returns {Function}
-   */
-  createRemoveNodeHandler: function (el, fn) {
-    return function (mutations, observer) {
-      mutations.forEach(function (mutation) {
-        if (_.includes(mutation.removedNodes, el)) {
-          fn();
-          observer.disconnect();
-        }
-      });
-    };
-  },
+// finding elements (these minify nicely)
+module.exports.find = find;
+module.exports.findAll = findAll;
+module.exports.closest = closest;
 
-  /**
-   * Run a function when an element is removed from the DOM.
-   * Note: Observer is removed after the function is run once.
-   * @param {Element} el    Element to observe.
-   * @param {Function} fn   Function to execute when element is removed.
-   */
-  onRemove: function (el, fn) {
-    var observer = new MutationObserver(this.createRemoveNodeHandler(el, fn));
+// manipulating elements
+module.exports.getFirstChildElement = getFirstChildElement;
+module.exports.prependChild = prependChild;
+module.exports.insertBefore = insertBefore;
+module.exports.insertAfter = insertAfter;
+module.exports.replaceElement = replaceElement;
+module.exports.removeElement = removeElement;
+module.exports.clearChildren = clearChildren;
 
-    observer.observe(el.parentNode, {childList: true});
-  },
+// wrapping and unwrapping elements
+module.exports.wrapElements = wrapElements;
+module.exports.unwrapElements = unwrapElements;
 
-  create: domify // create elements from strings!
-};
+// event handling
+module.exports.preventDefault = preventDefault;
+module.exports.createRemoveNodeHandler = createRemoveNodeHandler;
+module.exports.onRemove = onRemove;
