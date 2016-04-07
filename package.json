@@ -1,6 +1,6 @@
 {
   "name": "@nymag/dom",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Tiny DOM manipulation library, good for minification!",
   "main": "index.js",
   "scripts": {
