@@ -83,7 +83,7 @@ function matches(node, selector) {
   if (node.matches) {
     return node.matches(selector);
   } else {
-    parent = node.parentElement || $document;
+    parent = node.parentElement || document;
     matches = parent.querySelectorAll(selector);
     i = 0;
     while (matches[i] && matches[i] !== node) {
