@@ -83,8 +83,8 @@ function matches(node, selector) {
   if (node.matches) {
     return node.matches(selector);
   } else {
-    parent = node.parentElement || document.firstElementChild;
-    matches = parent.querySelectorAll(selector);
+    parent = node.parentElement;
+    matches = parent ? parent.querySelectorAll(selector) : [];
     i = 0;
     while (matches[i] && matches[i] !== node) {
       i++;
@@ -106,11 +106,11 @@ function closest(node, parentSelector) {
     throw new Error('Please specify a selector to match against!');
   }
 
-  while (cursor && !matches(cursor, 'html') && !matches(cursor, parentSelector)) {
+  while (cursor && !matches(cursor, parentSelector)) {
     cursor = cursor.parentNode;
   }
 
-  if (!cursor || matches(cursor, 'html')) {
+  if (!cursor) {
     return null;
   } else {
     return cursor;
