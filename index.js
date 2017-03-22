@@ -1,6 +1,7 @@
 'use strict';
 var domify = require('domify'),
-  _ = require('lodash');
+  _each = require('lodash/each'),
+  _includes = require('lodash/includes');
 
 /**
  * Get url without _how_ to access it, creating a uri.
@@ -184,7 +185,7 @@ function wrapElements(els, wrapper) {
     els = Array.prototype.slice.call(els);
   }
 
-  _.each(els, function (el) {
+  _each(els, function (el) {
     // put it into the wrapper, remove it from its parent
     el.parentNode.removeChild(el);
     wrapperEl.appendChild(el);
@@ -223,7 +224,7 @@ function unwrapElements(parent, wrapper) {
 function createRemoveNodeHandler(el, fn) {
   return function (mutations, observer) {
     mutations.forEach(function (mutation) {
-      if (_.includes(mutation.removedNodes, el)) {
+      if (_includes(mutation.removedNodes, el)) {
         fn();
         observer.disconnect();
       }
